@@ -99,10 +99,7 @@ async fn send_to_recv_closed_returns_err() -> std::io::Result<()> {
     let sender = setup_sender_with_closed_receiver().await?;
 
     let mut recv_buf = [0u8; 32];
-    let err = time::timeout(Duration::from_secs(5), sender.recv(&mut recv_buf))
-        .await
-        .expect("timed out instead of returning error")
-        .unwrap_err();
+    let err = sender.recv(&mut recv_buf).await.unwrap_err();
     assert_connection_refused_or_reset(err);
     Ok(())
 }
@@ -192,6 +189,21 @@ async fn send_to_try_peek_sender_closed_returns_err() -> std::io::Result<()> {
     let sender = setup_sender_with_closed_receiver().await?;
     let err = sender.try_peek_sender().unwrap_err();
     assert_connection_refused_or_reset(err);
+    Ok(())
+}
+
+#[tokio::test]
+#[cfg_attr(
+    target_os = "wasi",
+    ignore = "temporarily disabled for WASI pending https://github.com/WebAssembly/wasi-libc/pull/734"
+)]
+async fn poll_recv_closed_returns_err() -> io::Result<()> {
+    let sender = setup_sender_with_closed_receiver().await?;
+
+    let result = poll_fn(|cx| sender.poll_recv(cx, &mut tokio::io::ReadBuf::new(&mut [0u8; 32])))
+        .await
+        .unwrap_err();
+    assert_connection_refused_or_reset(result);
     Ok(())
 }
 
