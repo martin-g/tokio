@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "net"), allow(dead_code, unreachable_pub))]
 
-use crate::io::ready::Ready;
-
 use std::fmt;
 use std::ops;
 
@@ -253,10 +251,6 @@ impl Interest {
         //
         // in both cases, `mio` is Some already
         mio.unwrap_or(mio::Interest::READABLE)
-    }
-
-    pub(crate) fn mask(self) -> Ready {
-        Ready::from_interest(self)
     }
 }
 
