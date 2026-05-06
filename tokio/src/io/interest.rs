@@ -239,7 +239,7 @@ impl Interest {
             // There is no error interest in mio, because error events are always reported.
             // But mio interests cannot be empty and an interest is needed just for the registration.
             //
-            // read readiness is filtered out in `Interest::mask` or `Ready::from_interest` if
+            // read readiness is filtered out in `Ready::from_interest` if
             // the read interest was not specified by the user.
             mio_add(&mut mio, mio::Interest::READABLE);
         }
